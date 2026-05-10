@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class CreateRequest(BaseModel):
     url: str
-    expires_at: datetime
+    expires_at: datetime | None = None
 
 
 class CreateResponse(BaseModel):
@@ -16,14 +16,27 @@ class CreateResponse(BaseModel):
 
 
 class UpdateRequest(BaseModel):
-    url: str
-    expires_at: datetime
+    url: str | None = None
+    expires_at: datetime | None = None
 
 
 class QRInfoResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     token: str
     original_url: str
     created_at: datetime
     updated_at: datetime
-    expired_at: datetime
+    expires_at: datetime | None
     is_deleted: bool
+
+
+class DayCount(BaseModel):
+    date: date
+    count: int
+
+
+class AnalyticsResponse(BaseModel):
+    token: str
+    total_scans: int
+    scans_by_day: list[DayCount]
