@@ -26,7 +26,7 @@ Answer these before you start coding:
     - 環境網路不穩、不想依賴第三方 service 也活著（例如博物館解說牌）
 
 2. **Token Generation:** How will you generate short URL tokens? What happens when two different URLs produce the same token? How does collision probability change as the number of tokens grows?
-我會選擇使用 SHA-256 + nonce 來生成 token，因為 hash 是 deterministic 的，只要給定相同的 input，就會產生相同的 output，所以為了有唯一性要加上 nonce（可以是 user_id） 一起拿去 hash，再經過 Base62 編碼擷取前7 char，就可以生成一個短的 token。
+我會選擇使用 SHA-256 + nonce 來生成 token，因為 hash 是 deterministic 的，只要給定相同的 input，就會產生相同的 output，所以為了有唯一性要加上 nonce（可以是timestamp+attempt，未來有 user 時可以加上 user_id） 一起拿去 hash，再經過 Base62 編碼擷取前7 char，就可以生成一個短的 token。
 
 3. **Redirect Strategy:** Why 302 (temporary) instead of 301 (permanent)? What are the trade-offs for analytics, URL modification, and latency?
 用 302 的原因：
