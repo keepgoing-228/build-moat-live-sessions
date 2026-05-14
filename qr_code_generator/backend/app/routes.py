@@ -7,6 +7,7 @@ from fastapi.responses import RedirectResponse, StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from .config import get_settings
 from .database import get_db
 from .models import ScanEvent, UrlMapping
 from .schemas import CreateRequest, CreateResponse, QRInfoResponse, UpdateRequest
@@ -30,7 +31,7 @@ def _warm_cache(mapping: UrlMapping) -> None:
 def _invalidate_cache(token: str) -> None:
     redirect_cache.pop(token, None)
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = get_settings().base_url
 
 
 @router.post("/api/qr/create", response_model=CreateResponse)

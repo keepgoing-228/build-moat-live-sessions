@@ -28,7 +28,7 @@ The SQLite file (`backend/qr_code.db`) is auto-created from `Base.metadata.creat
 - **Cache-first redirect path.** `redirect_cache` is a module-level `dict` in `routes.py` simulating Redis. Every mutation that affects redirect target — successful `create_qr` (warm), `update_qr` when `url` *or* `expires_at` changes (invalidate), `delete_qr` (invalidate) — must keep the cache consistent. `redirect()` itself warms the cache on a DB hit. If you add a new mutation path, you own its cache invalidation.
 - **Soft delete, not hard delete.** `is_deleted=True` on `UrlMapping` + the row stays. `_get_mapping_or_404` treats soft-deleted rows as 404 for the *admin* API (`GET/PATCH/DELETE /api/qr/{token}`), but the *redirect* path must distinguish them and return **410 Gone** instead of 404. Don't reuse `_get_mapping_or_404` inside `redirect()`.
 - **`ScanEvent` is append-only analytics**, written by `_record_scan` from the redirect handler. Indexed by `(token, scanned_at)` for the daily-aggregation query in `get_analytics`.
-- **`BASE_URL`** is hardcoded to `http://localhost:8000` in `routes.py`. The QR PNG encodes `{BASE_URL}/r/{token}`, so changing the host means regenerating images. When the frontend ships, this likely needs to move to config.
+- **`BASE_URL` and `DATABASE_URL` are env-driven** via `pydantic-settings` in `app/config.py`. Defaults: `http://localhost:8080` and `sqlite:///./qr_code.db`. Override via `backend/.env` (gitignored) or shell env. The QR PNG encodes `{BASE_URL}/r/{token}`, so changing `BASE_URL` post-creation means regenerating any existing images.
 
 ## Conventions
 
