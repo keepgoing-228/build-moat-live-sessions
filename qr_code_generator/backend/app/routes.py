@@ -138,7 +138,7 @@ def get_qr_image(token: str, db: Session = Depends(get_db)):
 
     img = qrcode.make(short_url)
     buf = io.BytesIO()
-    img.save(buf, format="PNG")
+    img.save(buf, kind="PNG")
     buf.seek(0)
     return StreamingResponse(buf, media_type="image/png")
 
