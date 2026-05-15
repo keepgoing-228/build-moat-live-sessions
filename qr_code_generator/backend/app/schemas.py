@@ -40,3 +40,10 @@ class AnalyticsResponse(BaseModel):
     token: str
     total_scans: int
     scans_by_day: list[DayCount]
+
+
+class QRListResponse(BaseModel):
+    items: list[QRInfoResponse]
+    total: int
+    limit: int
+    offset: int

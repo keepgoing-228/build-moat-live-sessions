@@ -10,7 +10,13 @@ from sqlalchemy.orm import Session
 from .config import get_settings
 from .database import get_db
 from .models import ScanEvent, UrlMapping
-from .schemas import CreateRequest, CreateResponse, QRInfoResponse, UpdateRequest
+from .schemas import (
+    CreateRequest,
+    CreateResponse,
+    QRInfoResponse,
+    QRListResponse,
+    UpdateRequest,
+)
 from .token_gen import generate_token
 from .url_validator import validate_url
 
@@ -94,6 +100,27 @@ def redirect(token: str, request: Request, db: Session = Depends(get_db)):
 
     _record_scan(token, request, db)
     return RedirectResponse(url=mapping.original_url, status_code=302)
+
+
+@router.get("/api/qr", response_model=QRListResponse)
+def list_qr(
+    limit: int = 20,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+):
+    limit = max(1, min(limit, 100))
+    offset = max(0, offset)
+    total = db.execute(
+        select(func.count(UrlMapping.id)).where(UrlMapping.is_deleted == False)  # noqa: E712
+    ).scalar() or 0
+    items = db.execute(
+        select(UrlMapping)
+        .where(UrlMapping.is_deleted == False)  # noqa: E712
+        .order_by(UrlMapping.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+    ).scalars().all()
+    return {"items": items, "total": total, "limit": limit, "offset": offset}
 
 
 @router.get("/api/qr/{token}", response_model=QRInfoResponse)
